@@ -3,6 +3,8 @@ import { isKeyDown } from "./io";
 import { Key } from "../polyfill";
 import { TILE_SIZE } from "../constants";
 import { Point } from "../physics/Point";
+import { collidesWith, collidesWithMap } from "../entities/attributes/Collider";
+import { MapGeometry } from "../entities/attributes/MapGeometry";
 
 export class Game extends PIXI.Application {
 
@@ -10,6 +12,7 @@ export class Game extends PIXI.Application {
 
     private player: PIXI.Graphics;
     private gameContainer: PIXI.Container = new PIXI.Container();
+    private mapGeometry: MapGeometry;
 
     constructor() {
         super({
@@ -21,8 +24,7 @@ export class Game extends PIXI.Application {
         this.stage.addChild(this.gameContainer);
 
         this.dungeon = DunGen(opts);
-        // console.log(dungeon);
-        // console.log(dungeon.map.toString(x => x != 0 ? '█' : ' '));
+        this.mapGeometry = new MapGeometry(this.dungeon.map, TILE_SIZE);
 
         const mapGraphic = new PIXI.Container();
         for (let y = 0; y < this.dungeon.map.height; y ++) {
@@ -75,26 +77,13 @@ export class Game extends PIXI.Application {
         };
 
         this.player.x += impulse.x;
-        if (this.hasCollision()) {
-            this.player.x -= impulse.x;
-        }
-     
         this.player.y += impulse.y;
-        if (this.hasCollision()) {
-            this.player.y -= impulse.y;
+
+        const details = collidesWithMap({ x: this.player.x, y: this.player.y, radius: 20 }, this.mapGeometry);
+        if (details) {
+            this.player.x += details.decollide1.x;
+            this.player.y += details.decollide1.y;
         }
-    }
-
-    hasCollision() {
-        const evalTiles = [
-            this.tileAt(this.player.x - 20, this.player.y - 20),
-            this.tileAt(this.player.x - 20, this.player.y + 20),
-            this.tileAt(this.player.x + 20, this.player.y - 20),
-            this.tileAt(this.player.x + 20, this.player.y + 20),
-        ];
-
-        return evalTiles.some(({ x, y }) => this.dungeon.map.get(x, y) === 0);
-        // const collisions = evalTiles.filter(({x, y}) => this.dungeon.map.get(x, y) === 0);
     }
 
     tileAt(x: number, y: number) {
