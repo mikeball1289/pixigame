@@ -1,5 +1,5 @@
-import { Tag } from "../Entity";
-import { Point } from "../../physics/Point";
+import { Tag } from '../Entity';
+import { Point } from '../../physics/Point';
 
 export class InertialTag implements Tag {
     public static TYPE = Symbol('Inertial');

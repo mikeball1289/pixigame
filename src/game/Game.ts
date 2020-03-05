@@ -1,10 +1,10 @@
-import { DunGen, opts, DunGenPack } from "../../Dungen";
-import { isKeyDown } from "./io";
-import { Key } from "../polyfill";
-import { TILE_SIZE } from "../constants";
-import { Point } from "../physics/Point";
-import { collidesWith, collidesWithMap } from "../entities/attributes/Collider";
-import { MapGeometry } from "../entities/attributes/MapGeometry";
+import { DunGen, opts, DunGenPack } from '../../Dungen';
+import { isKeyDown } from './io';
+import { Key } from '../polyfill';
+import { TILE_SIZE } from '../constants';
+import { Point } from '../physics/Point';
+import { collidesWith, collidesWithMap } from '../entities/attributes/Collider';
+import { MapGeometry } from '../entities/attributes/MapGeometry';
 
 export class Game extends PIXI.Application {
 

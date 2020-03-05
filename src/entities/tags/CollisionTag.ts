@@ -1,5 +1,5 @@
-import { CircleCollider } from "../attributes/Collider";
-import { Tag } from "../Entity";
+import { CircleCollider } from '../attributes/Collider';
+import { Tag } from '../Entity';
 
 export class CollisionTag implements Tag {
     public static TYPE = Symbol('Collision');

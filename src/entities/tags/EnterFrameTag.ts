@@ -1,4 +1,4 @@
-import { Tag } from "../Entity";
+import { Tag } from '../Entity';
 
 export class EnterFrameTag implements Tag {
     public static TYPE = Symbol('EnterFrame');

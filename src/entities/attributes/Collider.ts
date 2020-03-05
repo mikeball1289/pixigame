@@ -1,6 +1,6 @@
-import { Point } from "../../physics/Point";
-import { MapGeometry } from "./MapGeometry";
-import { maxBy } from "../../utils/arrays";
+import { Point } from '../../physics/Point';
+import { MapGeometry } from './MapGeometry';
+import { maxBy } from '../../utils/arrays';
 
 export interface CollisionDetails {
     amount: number;
