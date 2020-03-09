@@ -5,5 +5,5 @@ export class EntityGraphicsTag implements Tag {
 
     public readonly type = EntityGraphicsTag.TYPE;
 
-    constructor(public graphics: PIXI.Container) { }
+    constructor(public graphic: PIXI.Container) { }
 }

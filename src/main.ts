@@ -1,23 +1,33 @@
-import { Game } from './game/Game';
-import { bindKeys, onEnterFrame } from './game/io';
+import { bindKeys } from './game/io';
 import './polyfill';
 import { Root } from './game/Root';
 import { EnterFrameDriver } from './drivers/EnterFrameDriver';
+import { ExitFrameDriver } from './drivers/ExitFrameDriver';
 import { GraphicsDriver } from './drivers/GraphicsDriver';
 import { PhysicsDriver } from './drivers/PhysicsDriver';
 import { GameInitDriver } from './drivers/GameInitDriver';
+import { CameraDriver } from './drivers/CameraDriver';
 
 function main() {
     bindKeys();
-    // const game = new Game();
-    // onEnterFrame(() => game.update());
+
+    const app = new PIXI.Application({
+        width: 1040,
+        height: 860,
+        backgroundColor: 0xaa0000
+    });
+    document.body.appendChild(app.view);
+    
     const graphicsDriver = new GraphicsDriver();
+    app.stage.addChild(graphicsDriver.stage);
 
     new Root([
+        new GameInitDriver(),
         new EnterFrameDriver(),
         new PhysicsDriver(),
-        new GameInitDriver(),
         graphicsDriver,
+        new ExitFrameDriver(),
+        new CameraDriver(graphicsDriver.gameContainer),
     ]);
 }
 

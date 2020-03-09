@@ -1,10 +1,10 @@
 import { Driver } from './Driver';
 import { withTag } from '../entities/Entity';
-import { EnterFrameTag } from '../entities/tags/EnterFrameTag';
 import { Root } from '../game/Root';
 import { EnterFrameEvent } from '../game/Events';
+import { ExitFrameTag } from '../entities/tags/ExitFrameTag';
 
-export class EnterFrameDriver extends Driver {
+export class ExitFrameDriver extends Driver {
 
     register(root: Root) {
         super.register(root);
@@ -12,8 +12,8 @@ export class EnterFrameDriver extends Driver {
     }
 
     update() {
-        for (const entity of this.root.entities.filter(withTag(EnterFrameTag))) {
-            entity.getTag(EnterFrameTag).onEnterFrame();
+        for (const entity of this.root.entities.filter(withTag(ExitFrameTag))) {
+            entity.getTag(ExitFrameTag).onExitFrame();
         }
     }
 
