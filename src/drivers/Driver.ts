@@ -1,10 +1,4 @@
-import { Entity } from '../entities/Entity';
 import { Root } from '../game/Root';
-
-export interface Event<P> {
-    type: string;
-    payload?: P;
-}
 
 export class Driver {
     private _root?: Root;
