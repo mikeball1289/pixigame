@@ -1,4 +1,4 @@
-import { bindKeys } from './game/io';
+import { bindKeys, bindMouse } from './game/io';
 import './polyfill';
 import { Root } from './game/Root';
 import { EnterFrameDriver } from './drivers/EnterFrameDriver';
@@ -9,8 +9,6 @@ import { GameInitDriver } from './drivers/GameInitDriver';
 import { CameraDriver } from './drivers/CameraDriver';
 
 function main() {
-    bindKeys();
-
     const app = new PIXI.Application({
         width: 1040,
         height: 860,
@@ -18,6 +16,9 @@ function main() {
     });
     document.body.appendChild(app.view);
     
+    bindKeys();
+    bindMouse(app.view);
+
     const graphicsDriver = new GraphicsDriver();
     app.stage.addChild(graphicsDriver.stage);
 

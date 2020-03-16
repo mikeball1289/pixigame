@@ -3,11 +3,9 @@ import { Entity, withTag } from '../entities/Entity';
 import { InertialTag } from '../entities/tags/InertialTag';
 import { CollisionTag } from '../entities/tags/CollisionTag';
 import { MapTag } from '../entities/tags/MapTag';
-import { dieOr } from '../utils/typesafe';
 import { Root } from '../game/Root';
 import { EnterFrameEvent } from '../game/Events';
 import { collidesWithMap, collidesWith, CollisionDetails } from '../entities/attributes/Collider';
-import { MapGeometry } from '../entities/attributes/MapGeometry';
 
 export class PhysicsDriver extends Driver {
 
@@ -55,11 +53,11 @@ export class PhysicsDriver extends Driver {
                 const collider2 = collidingEntities[j].getTag(CollisionTag).collider;
                 const details = collidesWith(collider1, collider2);
                 if (details && this.nonNaNDetails(details)) {
-                    collider1.x += details.decollide1.x;
-                    collider1.y += details.decollide1.y;
+                    collider1.x += details.decollide1.x / 4;
+                    collider1.y += details.decollide1.y / 4;
 
-                    collider2.x += details.decollide2.x;
-                    collider2.y += details.decollide2.y;
+                    collider2.x += details.decollide2.x / 4;
+                    collider2.y += details.decollide2.y / 4;
                 }
             }
         }
@@ -67,7 +65,7 @@ export class PhysicsDriver extends Driver {
 
     private nonNaNDetails(details: CollisionDetails) {
         return !isNaN(details.decollide1.x) && !isNaN(details.decollide1.y) &&
-               !isNaN(details.decollide2.x) && !isNaN(details.decollide2.y)
+               !isNaN(details.decollide2.x) && !isNaN(details.decollide2.y);
     }
 
     /**
