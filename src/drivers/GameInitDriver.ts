@@ -6,7 +6,6 @@ import { opts, DunGen } from '../../Dungen';
 import { MapGeometry } from '../entities/attributes/MapGeometry';
 import { Player } from '../entities/Player';
 import { InitializeGameEvent } from '../game/Events';
-import { CollisionTag } from '../entities/tags/CollisionTag';
 import { TargetDummy } from '../entities/TargetDummy';
 
 export class GameInitDriver extends Driver {
@@ -32,6 +31,10 @@ export class GameInitDriver extends Driver {
         this.root.register(new Map(this.root, mapGeometry));
         this.root.register(player);
 
+        // const dummy = new TargetDummy(this.root);
+        // dummy.collider.x = (Math.random() * startingRoom.width + startingRoom.x) * TILE_SIZE;
+        // dummy.collider.y = (Math.random() * startingRoom.height + startingRoom.y) * TILE_SIZE;
+        // this.root.register(dummy);
         for (const room of dungeon.rooms) {
             for (let i = 0; i < 12; i ++) {
                 const dummy = new TargetDummy(this.root);

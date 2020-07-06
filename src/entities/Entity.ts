@@ -11,6 +11,8 @@ export interface TagType<T extends Tag> {
 
 export const withTag = <T extends Tag>(t: TagType<T>) => (e: Entity) => e.hasTag(t);
 
+export const withTags = <T extends Tag>(...t: TagType<T>[]) => (e: Entity) => !t.some(t => !e.hasTag(t));
+
 export class Entity {
     protected tags: Tag[] = [];
 
@@ -32,5 +34,17 @@ export class Entity {
 
     getTags<T extends Tag>(type: TagType<T>): T[] {
         return this.tags.filter(t => t.type === type.TYPE) as T[];
+    }
+
+    addTag(tag: Tag) {
+        this.tags.push(tag);
+    }
+
+    removeTag(tag: Tag) {
+        const tagIdx = this.tags.indexOf(tag);
+        if (tagIdx < 0) {
+            throw new Error('Tag doesn\'t exist on entity');
+        }
+        this.tags.splice(tagIdx, 1);
     }
 }

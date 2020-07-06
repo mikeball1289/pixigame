@@ -5,7 +5,7 @@ import { CollisionTag } from '../entities/tags/CollisionTag';
 import { MapTag } from '../entities/tags/MapTag';
 import { Root } from '../game/Root';
 import { EnterFrameEvent } from '../game/Events';
-import { collidesWithMap, collidesWith, CollisionDetails } from '../entities/attributes/Collider';
+import { circleCollidesWithMap, circleCollidesWithCircle, CollisionDetails } from '../entities/attributes/Collider';
 
 export class PhysicsDriver extends Driver {
 
@@ -51,7 +51,7 @@ export class PhysicsDriver extends Driver {
             for (let j = i + 1; j < collidingEntities.length; j ++) {
                 const collider1 = collidingEntities[i].getTag(CollisionTag).collider;
                 const collider2 = collidingEntities[j].getTag(CollisionTag).collider;
-                const details = collidesWith(collider1, collider2);
+                const details = circleCollidesWithCircle(collider1, collider2);
                 if (details && this.nonNaNDetails(details)) {
                     collider1.x += details.decollide1.x / 4;
                     collider1.y += details.decollide1.y / 4;
@@ -82,7 +82,7 @@ export class PhysicsDriver extends Driver {
 
         for (const entity of collidingEntities) {
             const collider = entity.getTag(CollisionTag).collider;
-            const details = collidesWithMap(collider, mapGeometry);
+            const details = circleCollidesWithMap(collider, mapGeometry);
             if (details) {
                 collider.x += details.decollide1.x;
                 collider.y += details.decollide1.y;

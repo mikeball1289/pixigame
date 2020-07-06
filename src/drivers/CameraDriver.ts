@@ -3,8 +3,8 @@ import { withTag } from '../entities/Entity';
 import { EnterFrameTag } from '../entities/tags/EnterFrameTag';
 import { Root } from '../game/Root';
 import { EnterFrameEvent } from '../game/Events';
-import { PlayerTag } from '../entities/tags/idtags/PlayerTag';
 import { CollisionTag } from '../entities/tags/CollisionTag';
+import { LabelTag } from '../entities/tags/LabelTag';
 
 export class CameraDriver extends Driver {
 
@@ -18,7 +18,7 @@ export class CameraDriver extends Driver {
     }
 
     update() {
-        const player = this.root.entities.find(withTag(PlayerTag));
+        const player = this.root.entities.find(withTag(LabelTag('player')));
         if (!player) {
             return;
         }

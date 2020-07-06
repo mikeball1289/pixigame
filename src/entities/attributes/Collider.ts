@@ -1,6 +1,7 @@
 import { Point } from '../../physics/Point';
 import { MapGeometry } from './MapGeometry';
 import { maxBy } from '../../utils/arrays';
+import { angleOf } from '../../utils/geometry';
 
 export interface CollisionDetails {
     amount: number;
@@ -8,7 +9,7 @@ export interface CollisionDetails {
     decollide2: Point;
 }
 
-interface PointCollider {
+export interface PointCollider {
     x: number;
     y: number;
 }
@@ -17,8 +18,22 @@ export interface CircleCollider extends PointCollider {
     radius: number;
 }
 
+export interface SwingCollider extends CircleCollider {
+    direction: number;
+    angle: number;
+}
+
+export interface LineCollider {
+    start: PointCollider;
+    end: PointCollider;
+}
+
 export function CircleCollider(x: number, y: number, radius: number): CircleCollider {
     return { x, y, radius };
+}
+
+export function SwingCollider(x: number, y: number, radius: number, direction: number, angle: number): SwingCollider {
+    return { x, y, radius, direction, angle };
 }
 
 interface RectCollider extends PointCollider {
@@ -26,7 +41,7 @@ interface RectCollider extends PointCollider {
     height: number;
 }
 
-export function collidesWith(c1: CircleCollider, c2: CircleCollider): CollisionDetails | null {
+export function circleCollidesWithCircle(c1: CircleCollider, c2: CircleCollider): CollisionDetails | null {
     const dx = c1.x - c2.x;
     const dy = c1.y - c2.y;
     const delta2 = dx * dx + dy * dy;
@@ -37,15 +52,87 @@ export function collidesWith(c1: CircleCollider, c2: CircleCollider): CollisionD
     } else {
         const delta = Math.sqrt(delta2);
         const amount = rt - delta;
-        return {
-            amount,
-            decollide1: new Point(dx / delta * amount * c1.radius / rt, dy / delta * amount * c1.radius / rt),
-            decollide2: new Point(-dx / delta * amount * c2.radius / rt, -dy / delta * amount * c1.radius / rt)
-        };
+        if (delta === 0) {
+            return {
+                amount,
+                decollide1: new Point(c1.radius, 0),
+                decollide2: new Point(-c2.radius, 0)
+            }
+        } else {
+            return {
+                amount,
+                decollide1: new Point(dx / delta * amount * c1.radius / rt, dy / delta * amount * c1.radius / rt),
+                decollide2: new Point(-dx / delta * amount * c2.radius / rt, -dy / delta * amount * c1.radius / rt)
+            };
+        }
     }
 }
 
-export function collidesWithMap(c1: CircleCollider, map: MapGeometry): CollisionDetails | null {
+export function swingHitsCircle(c1: SwingCollider, c2: CircleCollider): CollisionDetails | null {
+    function resolveSwingCollision() {
+        const details = circleCollidesWithCircle(c1, c2);
+        if (!details) return null;
+        return {
+            amount: details.amount,
+            decollide1: new Point(),
+            decollide2: new Point(details.decollide2.x - details.decollide1.x, details.decollide2.y - details.decollide1.y),
+        }
+    }
+
+    const dx = c2.x - c1.x;
+    const dy = c2.y - c1.y;
+    const angle = angleOf(dx, dy);
+    const da = c1.direction - angle;
+    const boundedda = ((da + Math.PI) % (Math.PI * 2) - Math.PI);
+    // if the target circle is within the arc of the swing
+    if (Math.abs(boundedda) <= c1.angle / 2) {
+        return resolveSwingCollision();
+    }
+    // otherwise check the edges of the swing
+    const r1 = c1.direction + c1.angle / 2;
+    const r2 = c1.direction - c1.angle / 2;
+    const l1: LineCollider = {
+        start: { x: c1.x, y: c1.y },
+        end: {
+            x: c1.x - Math.sin(r1) * c1.radius,
+            y: c1.y + Math.cos(r1) * c1.radius
+        }
+    }
+    const l2: LineCollider = {
+        start: { x: c1.x, y: c1.y },
+        end: {
+            x: c1.x - Math.sin(r2) * c1.radius,
+            y: c1.y + Math.cos(r2) * c1.radius
+        }
+    }
+    if (circleCollidesWithLine(c2, l1) || circleCollidesWithLine(c2, l2)) {
+        return resolveSwingCollision();
+    }
+    return null;
+}
+
+export function circleCollidesWithLine(c1: CircleCollider, c2: LineCollider): { x: number, y: number } | null {
+    const dx = c2.end.x - c2.start.x;
+    const dy = c2.end.y - c2.start.y;
+    const length2 = dx * dx + dy * dy;
+    const dot = (((c1.x - c2.start.x) * (c2.end.x - c2.start.x)) + ((c1.y - c2.start.y) * (c2.end.y - c2.start.y))) / length2;
+
+    if (dot < 0 || dot > 1) {
+        if (circleContainsPoint(c1, c2.start)) return { ...c2.start };
+        if (circleContainsPoint(c1, c2.end)) return { ...c2.end };
+        return null;
+    }
+
+    const closest = {
+        x: c2.start.x + (dot * (c2.end.x - c2.start.x)),
+        y: c2.start.y + (dot * (c2.end.y - c2.start.y)),
+    }
+
+    if (circleContainsPoint(c1, closest)) return closest;
+    return null;
+}
+
+export function circleCollidesWithMap(c1: CircleCollider, map: MapGeometry): CollisionDetails | null {
     const covers: { x: number, y: number }[] = [];
     for (let x = c1.x - c1.radius; x < c1.x + c1.radius + map.tileSize; x += map.tileSize) {
         for (let y = c1.y - c1.radius; y < c1.y + c1.radius + map.tileSize; y += map.tileSize) {
@@ -53,7 +140,7 @@ export function collidesWithMap(c1: CircleCollider, map: MapGeometry): Collision
         }
     }
 
-    const tileCollision = covers.map(xy => collidesWithTile(c1, map, xy));
+    const tileCollision = covers.map(xy => circleCollidesWithTile(c1, map, xy));
     if (!tileCollision.some(tc => tc != null)) return null;
 
     const decollisionVector = tileCollision.reduce((total, tc) => {
@@ -68,7 +155,7 @@ export function collidesWithMap(c1: CircleCollider, map: MapGeometry): Collision
     };
 }
 
-function collidesWithTile(c1: CircleCollider, map: MapGeometry, xy: { x: number, y: number }): CollisionDetails | null {
+function circleCollidesWithTile(c1: CircleCollider, map: MapGeometry, xy: { x: number, y: number }): CollisionDetails | null {
     if (map.tiles.get(xy.x, xy.y) != 0) return null;
     
     const tile: RectCollider = {

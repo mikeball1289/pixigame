@@ -6,6 +6,8 @@ import { Root } from '../game/Root';
 import { Point } from '../physics/Point';
 import { EntityGraphicsTag } from './tags/EntityGraphicsTag';
 import { ExitFrameTag } from './tags/ExitFrameTag';
+import { EnterFrameTag } from './tags/EnterFrameTag';
+import { LabelTag } from './tags/LabelTag';
 
 export class TargetDummy extends Entity {
     collider = CircleCollider(0, 0, 20);
@@ -23,9 +25,24 @@ export class TargetDummy extends Entity {
         this.tags = [
             new CollisionTag(this.collider),
             new InertialTag(this.collider, this.velocity),
+            new EnterFrameTag(() => this.updateImpulse()),
             new ExitFrameTag(() => this.updateGraphics()),
             new EntityGraphicsTag(this.graphicsContainer),
+            new (LabelTag('enemy'))(),
         ];
+    }
+
+    private updateImpulse() {
+        if (this.velocity.length > 6) {
+            this.velocity.length = 5;
+        } else {
+            this.velocity.length *= 0.83;
+        }
+
+        if (this.velocity.length < 0.1) {
+            this.velocity.x = 0;
+            this.velocity.y = 0;
+        }
     }
 
     private updateGraphics() {

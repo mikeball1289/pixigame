@@ -13,7 +13,9 @@ export class EnterFrameDriver extends Driver {
 
     update() {
         for (const entity of this.root.entities.filter(withTag(EnterFrameTag))) {
-            entity.getTag(EnterFrameTag).onEnterFrame();
+            for (const eft of entity.getTags(EnterFrameTag)) {
+                eft.onEnterFrame();
+            }
         }
     }
 

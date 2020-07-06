@@ -115,3 +115,9 @@ export enum Key {
     QUOTE = 222,
     META = 224,
 };
+
+export enum MouseButton {
+    LEFT = 0,
+    MIDDLE = 1,
+    RIGHT = 2,
+}

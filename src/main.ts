@@ -1,12 +1,7 @@
 import { bindKeys, bindMouse } from './game/io';
 import './polyfill';
 import { Root } from './game/Root';
-import { EnterFrameDriver } from './drivers/EnterFrameDriver';
-import { ExitFrameDriver } from './drivers/ExitFrameDriver';
-import { GraphicsDriver } from './drivers/GraphicsDriver';
-import { PhysicsDriver } from './drivers/PhysicsDriver';
-import { GameInitDriver } from './drivers/GameInitDriver';
-import { CameraDriver } from './drivers/CameraDriver';
+import * as drivers from './drivers/index';
 
 function main() {
     const app = new PIXI.Application({
@@ -19,16 +14,19 @@ function main() {
     bindKeys();
     bindMouse(app.view);
 
-    const graphicsDriver = new GraphicsDriver();
+    const graphicsDriver = new drivers.GraphicsDriver();
     app.stage.addChild(graphicsDriver.stage);
 
     new Root([
-        new GameInitDriver(),
-        new EnterFrameDriver(),
-        new PhysicsDriver(),
+        new drivers.TransientDriver(),
+        new drivers.GameInitDriver(),
+        new drivers.EnterFrameDriver(),
+        new drivers.PhysicsDriver(),
+        new drivers.TimerDriver(),
+        new drivers.HitboxDriver(),
         graphicsDriver,
-        new ExitFrameDriver(),
-        new CameraDriver(graphicsDriver.gameContainer),
+        new drivers.ExitFrameDriver(),
+        new drivers.CameraDriver(graphicsDriver.gameContainer),
     ]);
 }
 
